@@ -1,0 +1,5 @@
+android_app {
+    name: "HelloDemo",
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+}

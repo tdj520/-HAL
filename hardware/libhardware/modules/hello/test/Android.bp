@@ -1,0 +1,9 @@
+cc_binary {
+    name: "hello_hal",
+    srcs: ["HelloTest.cpp"],
+    shared_libs: [
+        "liblog",
+        "libhardware",
+    ],
+
+}

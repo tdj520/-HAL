@@ -1,0 +1,14 @@
+cc_binary {
+    name: "Hello_hidl_test",
+    srcs: ["Hello_hidl_test.cpp"],
+    shared_libs: [
+        "liblog",
+        "android.hardware.hello_hidl@1.0",
+        "libhidlbase",
+        "libhidltransport",
+        "libhwbinder",
+        "libutils",
+    ],
+
+}
+

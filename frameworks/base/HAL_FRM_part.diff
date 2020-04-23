@@ -1,0 +1,88 @@
+diff --git a/Android.bp b/Android.bp
+index f5f62d8..fcc6a4a 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -72,6 +72,7 @@ java_defaults {
+         "core/java/android/app/IEphemeralResolver.aidl",
+         "core/java/android/app/IInstantAppResolver.aidl",
+         "core/java/android/app/IInstrumentationWatcher.aidl",
++        "core/java/android/app/IHelloService.aidl",
+         "core/java/android/app/INotificationManager.aidl",
+         "core/java/android/app/IProcessObserver.aidl",
+         "core/java/android/app/IRequestFinishCallback.aidl",
+diff --git a/services/core/jni/Android.bp b/services/core/jni/Android.bp
+index 6218498..86dea8d 100644
+--- a/services/core/jni/Android.bp
++++ b/services/core/jni/Android.bp
+@@ -22,6 +22,7 @@ cc_library_static {
+         "BroadcastRadio/regions.cpp",
+         "com_android_server_AlarmManagerService.cpp",
+         "com_android_server_am_BatteryStatsService.cpp",
++        "com_android_server_am_HelloService.cpp",
+         "com_android_server_connectivity_Vpn.cpp",
+         "com_android_server_connectivity_tethering_OffloadHardwareInterface.cpp",
+         "com_android_server_ConsumerIrService.cpp",
+@@ -134,6 +135,7 @@ cc_defaults {
+         "android.frameworks.sensorservice@1.0",
+         "android.system.suspend@1.0",
+         "suspend_control_aidl_interface-cpp",
++        "android.hardware.hello_hidl@1.0",
+     ],
+ 
+     static_libs: [
+diff --git a/services/core/jni/onload.cpp b/services/core/jni/onload.cpp
+index 87f62fd..3be2fd1 100644
+--- a/services/core/jni/onload.cpp
++++ b/services/core/jni/onload.cpp
+@@ -60,6 +60,8 @@ int register_android_server_am_LowMemDetector(JNIEnv* env);
+ // [TCTOPTIMIZE] Added by dingpengzheng for defect 7637259 @{
+ int register_tct_server_ext_TctPerfService(JNIEnv* env);
+ // [TCTOPTIMIZE] @}
++
++int register_android_server_am_HelloService(JNIEnv* env);
+ };
+ 
+ using namespace android;
+@@ -68,7 +70,6 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* /* reserved */)
+ {
+     JNIEnv* env = NULL;
+     jint result = -1;
+-
+     if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
+         ALOGE("GetEnv failed!");
+         return result;
+@@ -110,5 +111,6 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* /* reserved */)
+     register_android_server_security_VerityUtils(env);
+     register_android_server_am_AppCompactor(env);
+     register_android_server_am_LowMemDetector(env);
++    register_android_server_am_HelloService(env);
+     return JNI_VERSION_1_4;
+ }
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index d2bb4a4..55bdbf0 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -173,7 +173,7 @@ import java.util.Locale;
+ import java.util.Timer;
+ import java.util.concurrent.CountDownLatch;
+ import java.util.concurrent.Future;
+-
++import com.android.server.am.HelloService;
+ public final class SystemServer {
+ 
+     private static final String TAG = "SystemServer";
+@@ -1506,6 +1506,14 @@ public final class SystemServer {
+             } catch (Throwable e) {
+                 reportWtf("starting Location Manager", e);
+             }
++
++            try {
++                android.util.Log.d("dongjiao","SystemServer...addService(helloService)...");
++                ServiceManager.addService("helloService", new HelloService());
++            } catch (Throwable e) {
++                reportWtf("starting helloService", e);
++            }
++
+             traceEnd();
+ 
+             traceBeginAndSlog("StartCountryDetectorService");
